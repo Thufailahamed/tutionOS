@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "classflow",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "classflow-db",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../packages/db/migrations"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "FILES", "bucket_name": "classflow-files" }
+  ],
+  "kv_namespaces": [
+    { "binding": "KV", "id": "00000000000000000000000000000001", "preview_id": "00000000000000000000000000000001" }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "NOTIFICATIONS_QUEUE", "queue": "classflow-notifications" },
+      { "binding": "JOBS_QUEUE", "queue": "classflow-jobs" }
+    ]
+  },
+  "ai": { "binding": "AI" },
+  "vars": {
+    "APP_NAME": "ClassFlow",
+    "BRAND_TAGLINE": "Teach. Manage. Grow.",
+    "ENVIRONMENT": "development",
+    "SMS_PROVIDER": "log",
+    "EMAIL_PROVIDER": "log"
+  }
+}

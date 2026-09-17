@@ -1,0 +1,26 @@
+{
+  "name": "classflow",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.21.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -C apps/web dev",
+    "dev:jobs": "pnpm -C apps/jobs dev",
+    "build": "pnpm -C apps/web build",
+    "start": "pnpm -C apps/web start",
+    "deploy": "pnpm -C apps/web deploy",
+    "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
+    "db:migrate": "wrangler d1 migrations apply classflow-db --local --config apps/web/wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply classflow-db --remote --config apps/web/wrangler.jsonc",
+    "db:seed": "pnpm -C packages/db seed",
+    "test": "pnpm -C packages/api test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "typescript": "5.9.3",
+    "wrangler": "4.133.0"
+  }
+}
