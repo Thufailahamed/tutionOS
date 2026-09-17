@@ -10,7 +10,7 @@ export async function applyMigrations(d1: D1Database, files: { name: string; sql
       .map((s) => s.trim())
       .filter(Boolean);
     for (const stmt of statements) {
-      await d1.exec(stmt);
+      await d1.prepare(stmt).run();
     }
   }
 }

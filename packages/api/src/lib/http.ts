@@ -1,7 +1,13 @@
 import { HTTPException } from "hono/http-exception";
+import type { Context } from "hono";
 
 export function ok<T>(data: T, init?: ResponseInit) {
   return Response.json({ ok: true, data }, init);
+}
+
+/** Same body as ok() but built via c.json so headers set via c.header/setCookie survive. */
+export function send<T>(c: Context, data: T, init?: Parameters<Context["json"]>[1]) {
+  return c.json({ ok: true, data }, init);
 }
 
 export function fail(status: number, code: string, message: string, details?: unknown): never {
