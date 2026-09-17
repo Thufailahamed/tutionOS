@@ -1,0 +1,43 @@
+name = "classflow-jobs"
+compatibility_date = "2026-09-17"
+compatibility_flags = ["nodejs_compat"]
+main = "src/index.ts"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "classflow-db"
+database_id = "00000000-0000-0000-0000-000000000001"
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "classflow-files"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "00000000000000000000000000000001"
+preview_id = "00000000000000000000000000000001"
+
+[[queues.consumers]]
+queue = "classflow-notifications"
+max_batch_size = 25
+max_retries = 3
+dead_letter_queue = "classflow-notifications-dlq"
+
+[[queues.consumers]]
+queue = "classflow-jobs"
+max_batch_size = 10
+max_retries = 3
+dead_letter_queue = "classflow-jobs-dlq"
+
+[ai]
+binding = "AI"
+
+[vars]
+APP_NAME = "ClassFlow"
+ENVIRONMENT = "development"
+SMS_PROVIDER = "log"
+EMAIL_PROVIDER = "log"
+
+# Daily tasks: fee reminders, class reminders, subscription checks
+[triggers]
+crons = ["0 * * * *"]

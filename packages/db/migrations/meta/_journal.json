@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789631212611,
+      "tag": "0000_glorious_spiral",
+      "breakpoints": true
+    }
+  ]
+}

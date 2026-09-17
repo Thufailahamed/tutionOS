@@ -1,0 +1,1 @@
+import{t as e}from"./server-DXKYz36q.js";import{t}from"./framework~index~layout~layout~page~layout~app-route-handler-dispatch~app-page-cache~app-pag~fyn75vl4-B__zM4rp.js";var n=e(()=>{throw Error(`Unexpectedly client reference export 'AppShell' is called on server`)},`1642c20f0ba0`,`AppShell`),r=t();function i({children:e}){return(0,r.jsx)(n,{children:e})}export{i as default};

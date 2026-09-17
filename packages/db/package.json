@@ -1,0 +1,24 @@
+{
+  "name": "@classflow/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "seed": "node --experimental-strip-types src/seed-cli.ts || npx tsx src/seed-cli.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@classflow/core": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260917.1",
+    "typescript": "5.9.3"
+  }
+}
