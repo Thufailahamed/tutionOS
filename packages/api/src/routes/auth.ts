@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and, gt } from "drizzle-orm";
+import { eq, and, gt, or } from "drizzle-orm";
 import {
   users,
   authSessions,
@@ -30,7 +30,7 @@ import {
 import { requireAuth } from "../middleware/guard";
 import { rateLimit } from "../middleware/rateLimit";
 import { hashPassword, sha256 } from "../lib/crypto";
-import { ok, unauthorized, badRequest, notFound, nowIso } from "../lib/http";
+import { ok, send, unauthorized, badRequest, notFound, nowIso } from "../lib/http";
 import { audit } from "../lib/audit";
 import { dispatchChannel } from "../services/notify";
 
@@ -53,7 +53,7 @@ authRoutes.post("/register", rateLimit({ name: "register", limit: 10, windowSeco
   setCookie(c, SESSION_COOKIE, token, cookieOpts(c.env));
   setCookie(c, ORG_COOKIE, orgId, cookieOpts(c.env));
   await audit(db, { orgId, actorUserId: userId, action: "ORGANIZATION_CREATED", entity: "organization", entityId: orgId });
-  return ok({ userId, orgId }, { status: 201 });
+  return send(c, { userId, orgId }, { status: 201 });
 });
 
 authRoutes.post("/login", rateLimit({ name: "login", limit: 8, windowSeconds: 300 }), async (c) => {
@@ -65,7 +65,7 @@ authRoutes.post("/login", rateLimit({ name: "login", limit: 8, windowSeconds: 30
     ip: c.req.header("cf-connecting-ip"),
   });
   setCookie(c, SESSION_COOKIE, token, cookieOpts(c.env));
-  return ok({ userId: user.id });
+  return send(c, { userId: user.id });
 });
 
 authRoutes.post("/logout", async (c) => {
@@ -75,7 +75,7 @@ authRoutes.post("/logout", async (c) => {
     await db.update(authSessions).set({ revokedAt: nowIso() }).where(eq(authSessions.id, sessionId));
   }
   deleteCookie(c, SESSION_COOKIE, { path: "/" });
-  return ok({ loggedOut: true });
+  return send(c, { loggedOut: true });
 });
 
 authRoutes.get("/me", async (c) => {
@@ -135,7 +135,7 @@ authRoutes.post("/org/switch", requireAuth, async (c) => {
     .limit(1);
   if (!rows[0]) return notFound("Not a member of this organization");
   setCookie(c, ORG_COOKIE, orgId, cookieOpts(c.env));
-  return ok({ orgId });
+  return send(c, { orgId });
 });
 
 authRoutes.get("/sessions", requireAuth, async (c) => {
@@ -222,6 +222,20 @@ authRoutes.post("/otp/verify", rateLimit({ name: "otp_verify", limit: 10, window
     if (rows[0]) {
       await db.update(users).set({ [col]: nowIso() }).where(eq(users.id, rows[0].id));
     }
+  }
+  if (body.purpose === "login") {
+    const rows = await db
+      .select()
+      .from(users)
+      .where(and(or(eq(users.email, dest), eq(users.phone, dest))!, eq(users.status, "active")))
+      .limit(1);
+    if (!rows[0]) return notFound("Account not found");
+    const { token } = await createSession(db, rows[0].id, {
+      userAgent: c.req.header("user-agent"),
+      ip: c.req.header("cf-connecting-ip"),
+    });
+    setCookie(c, SESSION_COOKIE, token, cookieOpts(c.env));
+    return send(c, { verified: true, userId: rows[0].id });
   }
   return ok({ verified: true });
 });

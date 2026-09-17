@@ -88,6 +88,7 @@ export const sessionMiddleware = createMiddleware<{ Bindings: Env; Variables: Ap
 
     // Resolve tenant membership once user is known
     const user = c.get("user");
+    let orgCookie: string | null = null;
     if (user) {
       const requestedOrg =
         c.req.header("x-org-id") || getCookie(c, ORG_COOKIE) || undefined;
@@ -106,12 +107,13 @@ export const sessionMiddleware = createMiddleware<{ Bindings: Env; Variables: Ap
           role: chosen.role as OrgRole,
           permissions: effectivePermissions(chosen.role as OrgRole, grants, revokes),
         });
-        if (chosen.orgId !== requestedOrg) {
-          setCookie(c, ORG_COOKIE, chosen.orgId, cookieOpts(c.env));
-        }
+        if (chosen.orgId !== requestedOrg) orgCookie = chosen.orgId;
       }
     }
     await next();
+    // After next() the response exists — c.header writes to #res.headers, which
+    // actually reaches the wire (preparedHeaders are dropped for raw Responses).
+    if (orgCookie) setCookie(c, ORG_COOKIE, orgCookie, cookieOpts(c.env));
   },
 );
 

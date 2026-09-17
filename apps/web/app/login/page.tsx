@@ -27,13 +27,13 @@ export default function Login() {
       if (mode === "password") {
         await post("/api/auth/login", { identifier, password });
       } else if (!otpSent) {
-        const r = await post<{ sent: boolean; devCode?: string }>("/api/auth/otp/send", { identifier, purpose: "login" });
+        const r = await post<{ sent: boolean; devCode?: string }>("/api/auth/otp/send", { channel: identifier.includes("@") ? "email" : "phone", destination: identifier, purpose: "login" });
         setOtpSent(true);
         if (r.devCode) setDevCode(r.devCode);
         setBusy(false);
         return;
       } else {
-        await post("/api/auth/otp/verify", { identifier, code: otp, purpose: "login" });
+        await post("/api/auth/otp/verify", { destination: identifier, code: otp, purpose: "login" });
       }
       qc.clear();
       router.push("/dashboard");

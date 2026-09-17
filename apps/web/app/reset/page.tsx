@@ -21,11 +21,11 @@ export default function Reset() {
     setBusy(true);
     try {
       if (step === 1) {
-        const r = await post<{ sent: boolean; devCode?: string }>("/api/auth/otp/send", { identifier, purpose: "password_reset" });
+        const r = await post<{ sent: boolean; devCode?: string }>("/api/auth/otp/send", { channel: identifier.includes("@") ? "email" : "phone", destination: identifier, purpose: "password_reset" });
         if (r.devCode) setDevCode(r.devCode);
         setStep(2);
       } else {
-        await post("/api/auth/password/reset", { identifier, code, newPassword: password });
+        await post("/api/auth/password/reset", { destination: identifier, code, newPassword: password });
         router.push("/login");
       }
     } catch (ex) {
